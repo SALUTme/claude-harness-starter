@@ -27,7 +27,7 @@ specify init --here --integration claude --non-interactive
 После инициализации проверь, какие команды появились в `.claude/commands` или `.claude/skills`. Обычно это `/speckit.constitution`, `/speckit.specify`, `/speckit.plan`, `/speckit.tasks`, `/speckit.implement`. Если модель не может вызвать команду сама, попроси пользователя ввести её.
 
 Порядок:
-1. Конституция: инварианты из NORTH_STAR.md и правила из CLAUDE.md.
+1. Конституция: инварианты из NORTH_STAR.md и правила из AGENTS.md.
 2. Спецификация: что и зачем из PRD, без стека.
 3. Уточнения, если в версии есть команда уточнения.
 4. План: стек и архитектура.

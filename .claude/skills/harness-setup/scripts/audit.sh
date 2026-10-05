@@ -78,13 +78,15 @@ else
 fi
 
 section "4. Каркас и вики"
-if [ -f CLAUDE.md ]; then
-  lines=$(wc -l < CLAUDE.md | tr -d ' ')
-  [ "$lines" -le 80 ] && P CLAUDE.md "$lines строк" || F CLAUDE.md "$lines строк, предел 80"
-  grep -q '{{' CLAUDE.md && W CLAUDE.md "остались плейсхолдеры {{...}}"
+if [ -f AGENTS.md ]; then
+  lines=$(wc -l < AGENTS.md | tr -d ' ')
+  [ "$lines" -le 80 ] && P AGENTS.md "$lines строк" || F AGENTS.md "$lines строк, предел 80"
+  grep -q '{{' AGENTS.md && W AGENTS.md "остались плейсхолдеры {{...}}"
 else
-  F CLAUDE.md "нет файла"
+  F AGENTS.md "нет файла"
 fi
+if [ -f CLAUDE.md ] && grep -q '^@AGENTS.md' CLAUDE.md; then P CLAUDE.md "импортирует AGENTS.md"
+else F CLAUDE.md "нет строки @AGENTS.md: Claude Code не увидит правила проекта"; fi
 for f in docs/STATE.md docs/DECISIONS.md wiki/SCHEMA.md wiki/index.md wiki/log.md; do
   [ -f "$f" ] && P "$f" "есть" || F "$f" "нет файла"
 done
@@ -162,7 +164,7 @@ else
 fi
 
 section "7. Роли проверки"
-if [ -f CLAUDE.md ] && grep -q '^## Готово, когда' CLAUDE.md; then P "определение готовности" "раздел есть в CLAUDE.md"; else F "определение готовности" "нет раздела «Готово, когда» в CLAUDE.md"; fi
+if [ -f AGENTS.md ] && grep -q '^## Готово, когда' AGENTS.md; then P "определение готовности" "раздел есть в AGENTS.md"; else F "определение готовности" "нет раздела «Готово, когда» в AGENTS.md"; fi
 if command -v codex >/dev/null 2>&1; then P "Codex CLI" "установлен"
 elif [ "${CLAUDE_CODE_REMOTE:-}" = "true" ]; then P "Codex CLI" "облачная сессия: ревью Codex откладывается до сессии на Mac"
 else W "Codex CLI" "не установлен, ревью делает запасной агент"; fi

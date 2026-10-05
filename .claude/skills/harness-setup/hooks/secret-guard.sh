@@ -282,7 +282,7 @@ if [ "$SELF_EDIT" != "1" ]; then
         WARN:*) ask "Внимание: правка $rel ${verdict#WARN:}. Подтверждай, только если ты сам этого хочешь." ;;
       esac
       ask "Правка файла обвязки проекта: $rel. Проверь изменения перед подтверждением." ;;
-    .claude/hooks/*|.claude/skills/*)
+    .claude/hooks/*|.claude/skills/*|.agents/skills/*|.codex/*)
       if [ "$tool" = "Write" ] && [ -z "$(jq -r '.tool_input.content // empty' <<<"$input")" ]; then
         deny "Эта правка очищает файл обвязки $rel. Агенту так делать нельзя."
       fi

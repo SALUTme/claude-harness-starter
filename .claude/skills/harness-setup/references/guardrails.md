@@ -32,9 +32,12 @@ cp "<папка скилла>/hooks/harness.env.template" .claude/harness.env
 ## 2. Хуки
 
 ```bash
-mkdir -p .claude/hooks
+mkdir -p .claude/hooks .codex
 cp "<папка скилла>"/hooks/*.sh .claude/hooks/
+cp "<папка скилла>/hooks/codex-hooks.template.json" .codex/hooks.json
 ```
+
+`.codex/hooks.json` подключает те же хуки к Codex через переходник `codex-adapter.sh`. Он разбирает правки файлов Codex (`apply_patch`) и превращает «спросить подтверждение» в запрет с объяснением: Codex не умеет спрашивать через хук и без этого выполнил бы действие. Codex запускает хуки проекта только после того, как пользователь просмотрит и подтвердит их командой `/hooks`. Если `.codex/hooks.json` уже есть, покажи diff и сделай слияние.
 
 | Хук | Событие | Что делает |
 |---|---|---|

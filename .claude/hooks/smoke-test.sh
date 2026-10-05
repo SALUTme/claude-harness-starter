@@ -15,7 +15,7 @@ RUNS=$(mktemp "${TMPDIR:-/tmp}/harness-runs.XXXXXX")
 ST=$(mktemp -d "${TMPDIR:-/tmp}/harness-status.XXXXXX")
 trap 'rm -rf "$TMP" "$RUNS" "$ST"' EXIT
 mkdir -p "$TMP/.claude/hooks" "$TMP/src"
-for h in _harness_lib block-dangerous secret-guard after-edit-check commit-gate stop-gate; do
+for h in _harness_lib block-dangerous secret-guard after-edit-check commit-gate stop-gate codex-adapter; do
   cp "$SRC/$h.sh" "$TMP/.claude/hooks/" || { echo "FAIL  нет $SRC/$h.sh"; exit 1; }
 done
 chmod +x "$TMP/.claude/hooks/"*.sh
@@ -165,6 +165,36 @@ winrun secret-guard "$(wj 'C:\Users\me\proj\.claude\hooks\x.sh' 'echo')" ask "Wi
 winrun secret-guard "$(wj 'C:\Users\me\proj\wiki\page.md' 'текст')" empty "Windows: страница вики"
 check "Windows: путь C:\\ в вид /c/" test "$(. "$TMP/.claude/hooks/_harness_lib.sh"; harness_unixpath 'C:\Users\me\x y')" = "/c/Users/me/x y"
 check "Windows: обычный путь не меняется" test "$(. "$TMP/.claude/hooks/_harness_lib.sh"; harness_unixpath '/Users/me/x')" = "/Users/me/x"
+# Codex: переходник codex-adapter.sh. Codex правит файлы через apply_patch и не умеет «ask»
+crun() { # hook json expected label
+  local out rc got
+  out=$(printf '%s' "$2" | bash "$TMP/.claude/hooks/codex-adapter.sh" "$1" 2>/dev/null); rc=$?
+  got=empty
+  if [ "$rc" -eq 2 ] || printf '%s' "$out" | grep -q '"permissionDecision": *"deny"'; then got=block
+  elif printf '%s' "$out" | grep -q '"permissionDecision": *"ask"'; then got=ask
+  elif [ -n "$out" ]; then got=other
+  fi
+  if [ "$got" = "$3" ]; then ok "codex:$1" "$3" "$4"; else bad "codex:$1" "want=$3 got=$got" "$4"; fi
+}
+cpj() { jq -n --arg p "$1" --arg d "$TMP" '{session_id:"c1",cwd:$d,tool_name:"apply_patch",tool_input:{command:$p}}'; }
+cbj() { jq -n --arg c "$1" --arg d "$TMP" '{session_id:"c1",cwd:$d,tool_name:"Bash",tool_input:{command:$c}}'; }
+P_ENV=$'*** Begin Patch\n*** Add File: .env\n+A=1\n*** End Patch'
+P_HOOK=$'*** Begin Patch\n*** Update File: .claude/hooks/stop-gate.sh\n@@\n-x\n+y\n*** End Patch'
+P_CODEX=$'*** Begin Patch\n*** Update File: .codex/hooks.json\n@@\n-x\n+y\n*** End Patch'
+P_WIKI=$'*** Begin Patch\n*** Add File: wiki/page.md\n+# Страница\n+текст\n*** End Patch'
+P_KEY=$'*** Begin Patch\n*** Add File: src/ai.ts\n+const key = "sk-proj-'"$(printf 'A%.0s' $(seq 1 40))"$'";\n*** End Patch'
+P_TWO=$'*** Begin Patch\n*** Add File: wiki/a.md\n+ok\n*** Add File: .env.local\n+B=2\n*** End Patch'
+crun secret-guard "$(cpj "$P_ENV")" block "apply_patch: .env"
+crun secret-guard "$(cpj "$P_HOOK")" block "apply_patch: хук обвязки (ask → запрет)"
+crun secret-guard "$(cpj "$P_CODEX")" block "apply_patch: .codex/hooks.json (ask → запрет)"
+crun secret-guard "$(cpj "$P_WIKI")" empty "apply_patch: страница вики"
+crun secret-guard "$(cpj "$P_KEY")" block "apply_patch: API-ключ в тексте"
+crun secret-guard "$(cpj "$P_TWO")" block "apply_patch: второй файл патча .env.local"
+crun block-dangerous "$(cbj 'git push --force origin main')" block "Bash: force push"
+crun block-dangerous "$(cbj 'git reset --hard HEAD~1')" block "Bash: reset --hard (ask → запрет)"
+crun block-dangerous "$(cbj 'ls -la')" empty "Bash: обычная команда"
+crun block-dangerous "$(cbj 'echo x > .codex/hooks.json')" block "Bash: запись в .codex через терминал"
+crun after-edit-check "$(cpj "$P_WIKI")" empty "after-edit: вики без быстрой проверки"
 run secret-guard "$(wj .claude/Hooks/x.sh 'echo')" ask "хук проекта в другом регистре"
 run secret-guard "$(wj .CLAUDE/settings.json '{}')" ask "settings.json проекта в другом регистре"
 run secret-guard "$(wj "$TMP/.claude/harness.env" 'HARNESS_TEST_CMD=npm test')" ask "абсолютный путь к harness.env проекта"
