@@ -6,7 +6,7 @@
 
 ## Как установить
 
-Нужен Mac и Claude Code (приложение Claude, вкладка Code, или Claude Code в терминале). Аккаунт на GitHub не нужен.
+Нужен Mac или Windows 10/11 (Windows — бета, см. [WINDOWS_TEST.md](WINDOWS_TEST.md)) и Claude Code: приложение Claude с вкладкой Code или Claude Code в терминале. Аккаунт на GitHub не нужен.
 
 Напиши в Claude Code:
 

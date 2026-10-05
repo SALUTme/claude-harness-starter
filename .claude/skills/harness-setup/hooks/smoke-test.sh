@@ -156,6 +156,15 @@ run secret-guard "$(wj "$HOME/.claude/settings.json" '{}')" deny "глобаль
 run secret-guard "$(wj "$HOME/.claude/settings.local.json" '{}')" deny "глобальные локальные настройки"
 run secret-guard "$(wj .claude/hooks/x.sh 'echo')" ask "запись хука проекта"
 run secret-guard "$(wj ./.claude/settings.json '{}')" ask "settings.json проекта через ./"
+# Windows: проект и пути в виде C:\...
+WINP='C:\Users\me\proj'
+winrun() { CLAUDE_PROJECT_DIR="$WINP" run "$@"; }
+winrun secret-guard "$(wj 'C:\Users\me\proj\.env' 'A=1')" deny "Windows: .env"
+winrun secret-guard "$(wj 'c:/Users/me/proj/.env.local' 'A=1')" deny "Windows: .env.local через /"
+winrun secret-guard "$(wj 'C:\Users\me\proj\.claude\hooks\x.sh' 'echo')" ask "Windows: запись хука проекта"
+winrun secret-guard "$(wj 'C:\Users\me\proj\wiki\page.md' 'текст')" empty "Windows: страница вики"
+check "Windows: путь C:\\ в вид /c/" test "$(. "$TMP/.claude/hooks/_harness_lib.sh"; harness_unixpath 'C:\Users\me\x y')" = "/c/Users/me/x y"
+check "Windows: обычный путь не меняется" test "$(. "$TMP/.claude/hooks/_harness_lib.sh"; harness_unixpath '/Users/me/x')" = "/Users/me/x"
 run secret-guard "$(wj .claude/Hooks/x.sh 'echo')" ask "хук проекта в другом регистре"
 run secret-guard "$(wj .CLAUDE/settings.json '{}')" ask "settings.json проекта в другом регистре"
 run secret-guard "$(wj "$TMP/.claude/harness.env" 'HARNESS_TEST_CMD=npm test')" ask "абсолютный путь к harness.env проекта"

@@ -19,7 +19,11 @@ input=$(cat)
 file=$(jq -r '.tool_input.file_path // empty' <<<"$input")
 session=$(jq -r '.session_id // "nosession"' <<<"$input" | tr -cd '[:alnum:]_-')
 [ -z "$file" ] && exit 0
-rel="${file#"$ROOT"/}"
+if command -v harness_unixpath >/dev/null 2>&1; then
+  rel="$(harness_unixpath "$file")"; rel="${rel#"$(harness_unixpath "$ROOT")"/}"
+else
+  rel="${file#"$ROOT"/}"
+fi
 
 skip="${HARNESS_CHECK_SKIP_REGEX:-(\.(md|mdx|txt|rst)$|^(docs|wiki|raw)/)}"
 if printf '%s' "$rel" | grep -Eq -- "$skip"; then exit 0; fi

@@ -169,3 +169,24 @@ harness_load_env() {
     printf -v "$key" '%s' "$val"
   done < "$f"
 }
+
+# Путь Windows (C:\Users\a или C:/Users/a) приводит к виду Git Bash (/c/Users/a). Остальные пути не меняет.
+harness_unixpath() {
+  local p="${1//\\//}" drive
+  case "$p" in
+    [A-Za-z]:/*|[A-Za-z]:)
+      drive=$(printf '%s' "${p%%:*}" | tr '[:upper:]' '[:lower:]')
+      p="/$drive${p#?:}" ;;
+  esac
+  printf '%s' "$p"
+}
+
+# Печатает рабочую команду Python 3. На Windows python3 часто заглушка Microsoft Store, поэтому проверяется запуск.
+harness_python() {
+  local c
+  for c in python3 python; do
+    command -v "$c" >/dev/null 2>&1 || continue
+    "$c" -c 'import sys; sys.exit(0 if sys.version_info[0] == 3 else 1)' >/dev/null 2>&1 && { printf '%s' "$c"; return 0; }
+  done
+  return 1
+}

@@ -36,10 +36,14 @@ path=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty' <<<"$
 
 # Нормализуем путь: ./ и сегменты .. не должны прятать файлы обвязки
 npath="$path"
-if command -v python3 >/dev/null 2>&1; then
-  ROOT=$(python3 -c 'import os, sys; print(os.path.normpath(sys.argv[1]))' "$ROOT")
-  [ -n "$path" ] && npath=$(python3 -c 'import os, sys; print(os.path.normpath(sys.argv[1]))' "$path")
+PY=$(harness_python) || PY=""
+if [ -n "$PY" ]; then
+  ROOT=$("$PY" -c 'import os, sys; print(os.path.normpath(sys.argv[1]))' "$ROOT")
+  [ -n "$path" ] && npath=$("$PY" -c 'import os, sys; print(os.path.normpath(sys.argv[1]))' "$path")
 fi
+# Корень в родном виде системы: его читает Python в check_guard. Для сравнения путей ниже всё приводится к виду /c/...
+ROOT_NATIVE="$ROOT"
+ROOT=$(harness_unixpath "$ROOT"); npath=$(harness_unixpath "$npath")
 lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
 lpath=$(lower "$npath"); lroot=$(lower "$ROOT"); lhome=$(lower "${HOME:-/nonexistent-home}")
 case "$npath" in "$ROOT"/*) rel="${npath#"$ROOT"/}" ;; *) rel="$npath" ;; esac
@@ -52,7 +56,7 @@ lbase=$(basename -- "${lpath:-none}")
 
 # Смысловая проверка правки. Печатает OK, UNKNOWN, WARN:предупреждения или DENY:причины.
 check_guard() { # $1 = путь к текущему файлу, $2 = settings | env
-  if ! command -v python3 >/dev/null 2>&1; then
+  if [ -z "$PY" ]; then
     local newtext
     newtext=$(jq -r '[.tool_input.content, .tool_input.new_string, ((.tool_input.edits // [])[] | .new_string)] | map(select(type == "string")) | join("\n")' <<<"$input")
     if printf '%s' "$newtext" | grep -Eq 'disableAllHooks|HARNESS_ALLOW_SELF_EDIT|bypassPermissions|HARNESS_GATES_ACTIVE'; then
@@ -64,7 +68,7 @@ check_guard() { # $1 = путь к текущему файлу, $2 = settings | 
     fi
     return 0
   fi
-  HOOK_INPUT="$input" python3 - "$1" "$2" <<'PY'
+  HOOK_INPUT="$input" "$PY" - "$1" "$2" <<'PY'
 import json, os, re, sys
 path, kind = sys.argv[1], sys.argv[2]
 inp = json.loads(os.environ.get("HOOK_INPUT", "{}"))
@@ -272,7 +276,7 @@ if [ "$SELF_EDIT" != "1" ]; then
       [ "$tool" = "NotebookEdit" ] && deny "Файл $rel нельзя менять через NotebookEdit."
       kind=settings
       [ "$lrel" = ".claude/harness.env" ] && kind=env
-      verdict=$(check_guard "$ROOT/$rel" "$kind")
+      verdict=$(check_guard "$ROOT_NATIVE/$rel" "$kind")
       case "$verdict" in
         DENY:*) deny "Эта правка выключает защиту обвязки: ${verdict#DENY:}. Агенту так делать нельзя. Если это действительно нужно, человек правит $rel в веб-редакторе GitHub." ;;
         WARN:*) ask "Внимание: правка $rel ${verdict#WARN:}. Подтверждай, только если ты сам этого хочешь." ;;
