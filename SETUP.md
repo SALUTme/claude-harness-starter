@@ -24,6 +24,8 @@
 | `unlazy` | 2.1.0 | github.com/Leonxlnx/unlazy, MIT | условия готовности: ИИ не говорит «готово», пока не проверил |
 | `find-skills` | из skills 1.7.0 | github.com/vercel-labs/skills, MIT | находит и ставит новые скилы по ходу работы |
 | `skill-creator` | от 2026-10-04 | github.com/anthropics/skills, Apache-2.0 | превращает удачный способ работы в свой скил |
+| `deep-research` | от 2026-08-26 | github.com/alirezarezvani/claude-skills, MIT | глубокое исследование: каждый вывод подтверждён тремя независимыми источниками |
+| `user-research` | от 2026-10-04 | github.com/anthropics/knowledge-work-plugins, Apache-2.0 | план интервью и опросов |
 | `research-synthesis` | от 2026-10-04 | github.com/anthropics/knowledge-work-plugins, Apache-2.0 | сводит интервью, отзывы и данные в выводы |
 | Плагин oh-my-claudecode: `deep-interview`, `research`, агенты проверки | 5.6.1 | github.com/Yeachan-Heo/oh-my-claudecode, MIT | интервью, параллельные исследователи, независимая проверка |
 
@@ -85,7 +87,7 @@ git -c user.name="$USER" -c user.email="$USER@localhost" commit -qm "Старт 
 cd "$P" && ls .claude/skills && grep '"template"' .harness/source.json && git log --oneline | head -1
 ```
 
-Должны быть видны скилы `find-skills`, `harness`, `harness-setup`, `research-synthesis`, `skill-creator`, `unlazy`, строка `"template": false` и один коммит.
+Должны быть видны скилы `deep-research`, `find-skills`, `harness`, `harness-setup`, `research-synthesis`, `skill-creator`, `unlazy`, `user-research`, строка `"template": false` и один коммит.
 
 ## Шаг 4. Установить плагин oh-my-claudecode
 

@@ -29,6 +29,8 @@ Claude сам проверит компьютер, создаст папку п�
 | `.claude/skills/unlazy` | Условия готовности: работа не считается сделанной, пока каждое условие не проверено |
 | `.claude/skills/find-skills` | Поиск и установка новых скилов из каталога skills.sh |
 | `.claude/skills/skill-creator` | Создание своих скилов |
+| `.claude/skills/deep-research` | Глубокое исследование: каждый вывод подтверждён тремя независимыми источниками |
+| `.claude/skills/user-research` | План интервью и опросов |
 | `.claude/skills/research-synthesis` | Выводы из интервью, отзывов и данных |
 | `.claude/hooks/` | Защита от опасных команд и утечки секретов, проверки, статус проекта при старте |
 | `.claude/settings.json` | Права, хуки, плагин oh-my-claudecode |
