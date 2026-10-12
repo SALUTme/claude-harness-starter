@@ -195,6 +195,28 @@ crun block-dangerous "$(cbj 'git reset --hard HEAD~1')" block "Bash: reset --har
 crun block-dangerous "$(cbj 'ls -la')" empty "Bash: обычная команда"
 crun block-dangerous "$(cbj 'echo x > .codex/hooks.json')" block "Bash: запись в .codex через терминал"
 crun after-edit-check "$(cpj "$P_WIKI")" empty "after-edit: вики без быстрой проверки"
+# Windows: jq.exe и Python пишут концы строк \r\n, Python пишет в канал в кодировке cp1252. Имитация на любой системе.
+WINSIM="$TMP/.winsim"; mkdir -p "$WINSIM"
+REAL_JQ=$(command -v jq)
+cat > "$WINSIM/jq" <<EOF
+#!/usr/bin/env bash
+set -o pipefail
+"$REAL_JQ" "\$@" | sed \$'s/\$/\\r/'
+EOF
+REAL_PY=$(command -v python3 || true)
+if [ -n "$REAL_PY" ]; then
+  cat > "$WINSIM/python3" <<EOF
+#!/usr/bin/env bash
+set -o pipefail
+PYTHONIOENCODING="\${PYTHONIOENCODING:-cp1252}" "$REAL_PY" "\$@" | sed \$'s/\$/\\r/'
+EOF
+fi
+chmod +x "$WINSIM"/*
+wrun() { PATH="$WINSIM:$PATH" run "$@"; }
+wrun secret-guard "$(wj .env 'A=1')" deny "Windows \\r\\n: .env"
+wrun block-dangerous "$(bj '/bin/rm -rf ~')" deny "Windows \\r\\n: /bin/rm -rf ~"
+wrun secret-guard "$(wj .claude/settings.json '{"disableAllHooks": true}')" deny "Windows cp1252: выключение хуков"
+PATH="$WINSIM:$PATH" crun secret-guard "$(cpj "$P_ENV")" block "Windows \\r\\n: apply_patch .env"
 run secret-guard "$(wj .claude/Hooks/x.sh 'echo')" ask "хук проекта в другом регистре"
 run secret-guard "$(wj .CLAUDE/settings.json '{}')" ask "settings.json проекта в другом регистре"
 run secret-guard "$(wj "$TMP/.claude/harness.env" 'HARNESS_TEST_CMD=npm test')" ask "абсолютный путь к harness.env проекта"

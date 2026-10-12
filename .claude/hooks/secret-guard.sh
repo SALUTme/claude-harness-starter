@@ -38,8 +38,8 @@ path=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty' <<<"$
 npath="$path"
 PY=$(harness_python) || PY=""
 if [ -n "$PY" ]; then
-  ROOT=$("$PY" -c 'import os, sys; print(os.path.normpath(sys.argv[1]))' "$ROOT")
-  [ -n "$path" ] && npath=$("$PY" -c 'import os, sys; print(os.path.normpath(sys.argv[1]))' "$path")
+  ROOT=$("$PY" -c 'import os, sys; print(os.path.normpath(sys.argv[1]))' "$ROOT" | harness_crlf)
+  [ -n "$path" ] && npath=$("$PY" -c 'import os, sys; print(os.path.normpath(sys.argv[1]))' "$path" | harness_crlf)
 fi
 # Корень в родном виде системы: его читает Python в check_guard. Для сравнения путей ниже всё приводится к виду /c/...
 ROOT_NATIVE="$ROOT"
@@ -68,7 +68,7 @@ check_guard() { # $1 = путь к текущему файлу, $2 = settings | 
     fi
     return 0
   fi
-  HOOK_INPUT="$input" "$PY" - "$1" "$2" <<'PY'
+  HOOK_INPUT="$input" "$PY" - "$1" "$2" <<'PY' | harness_crlf
 import json, os, re, sys
 path, kind = sys.argv[1], sys.argv[2]
 inp = json.loads(os.environ.get("HOOK_INPUT", "{}"))

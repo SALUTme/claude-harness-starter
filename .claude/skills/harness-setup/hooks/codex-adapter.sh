@@ -8,6 +8,8 @@
 set -u
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Библиотека выравнивает jq и Python на Windows
+[ -f "$HOOK_DIR/_harness_lib.sh" ] && . "$HOOK_DIR/_harness_lib.sh"
 hook="${1:-}"
 case "$hook" in
   harness-status|block-dangerous|commit-gate|secret-guard|after-edit-check|stop-gate) ;;

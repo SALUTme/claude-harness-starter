@@ -6,7 +6,8 @@
           {
             "type": "command",
             "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/codex-adapter.sh\" harness-status",
-            "timeout": 10
+            "timeout": 10,
+            "commandWindows": "git harness-hook harness-status"
           }
         ]
       }
@@ -18,12 +19,14 @@
           {
             "type": "command",
             "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/codex-adapter.sh\" block-dangerous",
-            "timeout": 10
+            "timeout": 10,
+            "commandWindows": "git harness-hook block-dangerous"
           },
           {
             "type": "command",
             "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/codex-adapter.sh\" commit-gate",
-            "timeout": 900
+            "timeout": 900,
+            "commandWindows": "git harness-hook commit-gate"
           }
         ]
       },
@@ -33,7 +36,8 @@
           {
             "type": "command",
             "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/codex-adapter.sh\" secret-guard",
-            "timeout": 10
+            "timeout": 10,
+            "commandWindows": "git harness-hook secret-guard"
           }
         ]
       }
@@ -45,7 +49,8 @@
           {
             "type": "command",
             "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/codex-adapter.sh\" after-edit-check",
-            "timeout": 300
+            "timeout": 300,
+            "commandWindows": "git harness-hook after-edit-check"
           }
         ]
       }
@@ -56,7 +61,8 @@
           {
             "type": "command",
             "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/codex-adapter.sh\" stop-gate",
-            "timeout": 900
+            "timeout": 900,
+            "commandWindows": "git harness-hook stop-gate"
           }
         ]
       }

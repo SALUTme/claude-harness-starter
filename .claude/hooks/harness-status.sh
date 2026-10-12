@@ -5,6 +5,9 @@
 # Ничего не меняет, не ходит в сеть, укладывается в тайм-аут на больших репозиториях.
 set -u
 
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Библиотека выравнивает jq и Python на Windows. Статус работает и без неё.
+[ -f "$HOOK_DIR/_harness_lib.sh" ] && . "$HOOK_DIR/_harness_lib.sh"
 ROOT="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
 cd "$ROOT" 2>/dev/null || exit 0
 MODE="${1:-text}"
