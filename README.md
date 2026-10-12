@@ -6,7 +6,7 @@
 
 ## Как установить
 
-Нужен Mac или Windows 10/11 (Windows — бета, см. [WINDOWS_TEST.md](WINDOWS_TEST.md)) и ИИ-агент: Claude Code (приложение Claude с вкладкой Code или терминал) или Codex (бета). Аккаунт на GitHub не нужен.
+Нужен Mac или Windows 10/11 и ИИ-агент: Claude Code (приложение Claude с вкладкой Code или терминал) или Codex. Если у вас Windows и что-то пошло не так, смотрите [WINDOWS.md](WINDOWS.md). Аккаунт на GitHub не нужен.
 
 Напиши агенту:
 

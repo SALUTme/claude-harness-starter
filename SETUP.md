@@ -4,7 +4,7 @@
 
 > Действуй по инструкции https://raw.githubusercontent.com/SALUTme/claude-harness-starter/main/SETUP.md — настрой мой харнес.
 
-Работает на Mac. На Windows 10 и 11 — бета-версия. В Codex — бета-версия. Готовый проект открывается и в Claude Code, и в Codex: правила, скилы и вики у них общие.
+Работает на Mac и на Windows 10 и 11, в Claude Code и в Codex. Готовый проект открывается и в Claude Code, и в Codex: правила, скилы и вики у них общие.
 
 ---
 
@@ -83,7 +83,7 @@ for t in git jq node python3 claude curl tar; do printf '%-8s ' "$t"; command -v
 
 **Проверка:** `git --version`, `jq --version`, `node --version`, `python3 --version` отвечают. Иди к шагу 2.
 
-## Шаг 1W. Подготовить Windows (бета)
+## Шаг 1W. Подготовить Windows
 
 Харнесу на Windows нужны четыре программы:
 
@@ -213,7 +213,7 @@ cd "$P" && mkdir -p .harness/runtime && bash .claude/hooks/smoke-test.sh > .harn
 
 Полный вывод сохраняется в `.harness/runtime/smoke-test.log`, на экран идут только ошибки и итог.
 
-**Проверка:** в итоге `FAIL=0`. При ошибках не исправляй хуки сам: покажи пользователю строки с `FAIL` и попроси отправить автору харнеса файл `.harness/runtime/smoke-test.log` целиком. Установку продолжай.
+**Проверка:** в итоге `FAIL=0`. При ошибках не исправляй хуки сам. На Windows предложи пользователю обновить Git for Windows, jq и Python (`winget upgrade`) и повторить шаг. Если ошибки остались, честно скажи, что защита работает не полностью, и дай совет: не хранить пароли и ключи в папке проекта и внимательно читать, что агент просит подтвердить. Установку продолжай.
 
 ## Шаг 6. Перезапуск и первый запуск
 
@@ -249,4 +249,5 @@ cd "$P" && mkdir -p .harness/runtime && bash .claude/hooks/smoke-test.sh > .harn
 - какой агент, какая система и где лежит проект;
 - что установлено (таблица из начала, отметить пропущенное и почему);
 - результат автотеста защиты;
+- на Windows — ссылку на подсказки https://github.com/SALUTme/claude-harness-starter/blob/main/WINDOWS.md;
 - шаги перезапуска из шага 6.
